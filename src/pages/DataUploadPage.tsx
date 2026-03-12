@@ -9,8 +9,17 @@ interface FileEntry {
   progress: number
 }
 
+// Initial dummy data representing a realistic processing queue
+const DUMMY_FILES: FileEntry[] = [
+  { id: 'dummy-1', name: '20260312_sensor_data.zip',    size: 45_678_901, status: '完了',  progress: 100 },
+  { id: 'dummy-2', name: 'log_A_merged.csv',             size:  2_345_678, status: '完了',  progress: 100 },
+  { id: 'dummy-3', name: '20260311_batch_003.zip',       size: 12_345_678, status: '処理中', progress: 60  },
+  { id: 'dummy-4', name: 'factory_B_signals.csv',        size:    987_654, status: '待機',  progress: 0   },
+  { id: 'dummy-5', name: '20260310_quality_check.zip',   size:  8_192_000, status: '待機',  progress: 0   },
+]
+
 export default function DataUploadPage() {
-  const [files, setFiles] = useState<FileEntry[]>([])
+  const [files, setFiles] = useState<FileEntry[]>(DUMMY_FILES)
   const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 

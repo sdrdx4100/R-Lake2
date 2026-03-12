@@ -1,22 +1,26 @@
 import { useState } from 'react'
 
+// All available columns (left list)
 const ALL_COLUMNS_INITIAL = [
-  'timestamp', 'sensor_id', 'temperature', 'humidity', 'pressure',
-  'voltage', 'current', 'power', 'frequency', 'signal_strength',
-  'error_code', 'device_name', 'location', 'operator', 'shift',
-  'batch_id', 'product_id', 'quality_score', 'remark', 'updated_at',
+  '電圧', '電流', '電力', '周波数', '信号強度',
+  'デバイス名', '設置場所', '担当者', 'シフト', 'ロットID',
+  '製品ID', '品質スコア', '備考', '更新日時', 'タイムスタンプ',
+  '回転数', 'エラーコード', 'センサーID',
 ]
+
+// Pre-selected columns (right list) — representative set shown by default
+const SELECTED_COLUMNS_INITIAL = ['温度', '湿度', '圧力']
 
 export default function ColumnSetPage() {
   const [allColumns, setAllColumns] = useState(ALL_COLUMNS_INITIAL)
-  const [selectedColumns, setSelectedColumns] = useState<string[]>([])
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(SELECTED_COLUMNS_INITIAL)
   const [leftSearch, setLeftSearch] = useState('')
   const [rightSearch, setRightSearch] = useState('')
   const [leftSelected, setLeftSelected] = useState<string[]>([])
   const [rightSelected, setRightSelected] = useState<string[]>([])
 
-  const filteredAll = allColumns.filter(c => c.toLowerCase().includes(leftSearch.toLowerCase()))
-  const filteredSelected = selectedColumns.filter(c => c.toLowerCase().includes(rightSearch.toLowerCase()))
+  const filteredAll = allColumns.filter(c => c.includes(leftSearch))
+  const filteredSelected = selectedColumns.filter(c => c.includes(rightSearch))
 
   const addSelected = () => {
     const toAdd = leftSelected.filter(c => !selectedColumns.includes(c))
@@ -80,7 +84,7 @@ export default function ColumnSetPage() {
               placeholder="検索..."
               value={leftSearch}
               onChange={e => setLeftSearch(e.target.value)}
-              style={{ width: '100%', height: '28px', fontSize: '12px' }}
+              style={{ width: '100%', height: '32px', fontSize: '12px' }}
             />
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -134,7 +138,7 @@ export default function ColumnSetPage() {
               placeholder="検索..."
               value={rightSearch}
               onChange={e => setRightSearch(e.target.value)}
-              style={{ width: '100%', height: '28px', fontSize: '12px' }}
+              style={{ width: '100%', height: '32px', fontSize: '12px' }}
             />
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -153,7 +157,10 @@ export default function ColumnSetPage() {
       </div>
 
       <div style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-        <button style={{ color: '#6B7280' }} onClick={() => { setSelectedColumns([]); setAllColumns(ALL_COLUMNS_INITIAL) }}>
+        <button
+          style={{ color: '#6B7280' }}
+          onClick={() => { setSelectedColumns(SELECTED_COLUMNS_INITIAL); setAllColumns(ALL_COLUMNS_INITIAL) }}
+        >
           リセット
         </button>
         <button style={{ background: '#111827', color: '#FFFFFF', borderColor: '#111827' }}>

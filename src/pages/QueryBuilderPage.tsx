@@ -9,8 +9,15 @@ interface Condition {
   value: string
 }
 
-const COLUMNS = ['timestamp', 'sensor_id', 'temperature', 'humidity', 'pressure', 'voltage', 'current', 'power']
+const COLUMNS = ['温度', '湿度', '圧力', '回転数', 'エラーコード', '電圧', '電流', '電力', 'センサーID', 'タイムスタンプ']
 const OPERATORS = ['=', '≠', '>', '≥', '<', '≤', '含む', '含まない', '空白', '非空白']
+
+// Pre-filled conditions shown on initial load
+const INITIAL_CONDITIONS: Condition[] = [
+  { id: generateId(), logic: 'AND', column: '温度',      operator: '>',  value: '100'  },
+  { id: generateId(), logic: 'AND', column: '湿度',      operator: '<',  value: '80'   },
+  { id: generateId(), logic: 'OR',  column: 'エラーコード', operator: '≠', value: '0'   },
+]
 
 const newCondition = (): Condition => ({
   id: generateId(),
@@ -20,10 +27,16 @@ const newCondition = (): Condition => ({
   value: '',
 })
 
+// Serialize conditions to a human-readable text representation
+const conditionsToText = (conds: Condition[]): string =>
+  conds.map((c, i) =>
+    `${i === 0 ? '' : c.logic + ' '}${c.column} ${c.operator} ${c.value}`
+  ).join('\n')
+
 export default function QueryBuilderPage() {
   const [mode, setMode] = useState<'ui' | 'text'>('ui')
-  const [conditions, setConditions] = useState<Condition[]>([newCondition()])
-  const [rawText, setRawText] = useState('')
+  const [conditions, setConditions] = useState<Condition[]>(INITIAL_CONDITIONS)
+  const [rawText, setRawText] = useState(() => conditionsToText(INITIAL_CONDITIONS))
 
   const update = (id: string, field: keyof Condition, value: string) => {
     setConditions(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c))
@@ -41,6 +54,11 @@ export default function QueryBuilderPage() {
 
   const add = () => setConditions(prev => [...prev, newCondition()])
 
+  const switchToText = () => {
+    setRawText(conditionsToText(conditions))
+    setMode('text')
+  }
+
   const colW = { logic: '80px', column: '160px', operator: '100px', value: '200px' }
 
   return (
@@ -56,23 +74,32 @@ export default function QueryBuilderPage() {
             INDEX条件抽出設定
           </h2>
           <div style={{ display: 'flex', gap: '0' }}>
-            {(['ui', 'text'] as const).map(m => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                style={{
-                  height: '32px', padding: '0 16px',
-                  background: mode === m ? '#111827' : '#FFFFFF',
-                  color: mode === m ? '#FFFFFF' : '#374151',
-                  borderColor: '#D1D5DB',
-                  borderRadius: 0,
-                  marginLeft: '-1px',
-                  fontWeight: mode === m ? 600 : 400,
-                }}
-              >
-                {m === 'ui' ? 'UIモード' : '直接入力'}
-              </button>
-            ))}
+            <button
+              onClick={() => setMode('ui')}
+              style={{
+                height: '32px', padding: '0 16px',
+                background: mode === 'ui' ? '#111827' : '#FFFFFF',
+                color: mode === 'ui' ? '#FFFFFF' : '#374151',
+                borderColor: '#D1D5DB',
+                marginLeft: '-1px',
+                fontWeight: mode === 'ui' ? 600 : 400,
+              }}
+            >
+              UIモード
+            </button>
+            <button
+              onClick={switchToText}
+              style={{
+                height: '32px', padding: '0 16px',
+                background: mode === 'text' ? '#111827' : '#FFFFFF',
+                color: mode === 'text' ? '#FFFFFF' : '#374151',
+                borderColor: '#D1D5DB',
+                marginLeft: '-1px',
+                fontWeight: mode === 'text' ? 600 : 400,
+              }}
+            >
+              直接入力
+            </button>
           </div>
         </div>
 
@@ -83,10 +110,10 @@ export default function QueryBuilderPage() {
               display: 'flex', gap: '4px', marginBottom: '4px',
               paddingRight: '72px',
             }}>
-              <div style={{ width: colW.logic, fontSize: '11px', fontWeight: 600, color: '#6B7280', paddingLeft: '4px' }}>論理演算子</div>
-              <div style={{ width: colW.column, fontSize: '11px', fontWeight: 600, color: '#6B7280', paddingLeft: '4px' }}>カラム名</div>
+              <div style={{ width: colW.logic,    fontSize: '11px', fontWeight: 600, color: '#6B7280', paddingLeft: '4px' }}>論理演算子</div>
+              <div style={{ width: colW.column,   fontSize: '11px', fontWeight: 600, color: '#6B7280', paddingLeft: '4px' }}>カラム名</div>
               <div style={{ width: colW.operator, fontSize: '11px', fontWeight: 600, color: '#6B7280', paddingLeft: '4px' }}>条件</div>
-              <div style={{ flex: 1, fontSize: '11px', fontWeight: 600, color: '#6B7280', paddingLeft: '4px' }}>入力値</div>
+              <div style={{ flex: 1,              fontSize: '11px', fontWeight: 600, color: '#6B7280', paddingLeft: '4px' }}>入力値</div>
             </div>
 
             {/* Condition rows */}
@@ -153,17 +180,18 @@ export default function QueryBuilderPage() {
           </div>
         ) : (
           <div style={{ padding: '16px' }}>
+            <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '8px' }}>
+              例: 温度 &gt; 100 AND 湿度 &lt; 80
+            </div>
             <textarea
               value={rawText}
               onChange={e => setRawText(e.target.value)}
-              placeholder="例: temperature > 30 AND humidity < 80"
               style={{
                 width: '100%', height: '200px',
                 border: '1px solid #D1D5DB',
                 padding: '8px', fontSize: '13px',
                 fontFamily: 'monospace',
                 resize: 'vertical',
-                borderRadius: '0',
                 color: '#111827',
                 background: '#FFFFFF',
               }}
@@ -176,7 +204,12 @@ export default function QueryBuilderPage() {
           borderTop: '1px solid #D1D5DB',
           display: 'flex', gap: '8px', justifyContent: 'flex-end',
         }}>
-          <button style={{ color: '#6B7280' }}>クリア</button>
+          <button
+            style={{ color: '#6B7280' }}
+            onClick={() => { setConditions(INITIAL_CONDITIONS); setRawText(conditionsToText(INITIAL_CONDITIONS)) }}
+          >
+            クリア
+          </button>
           <button style={{ background: '#111827', color: '#FFFFFF', borderColor: '#111827' }}>
             抽出実行
           </button>
