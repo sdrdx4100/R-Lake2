@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { generateId } from '../utils/uuid'
 
 interface Condition {
   id: string
@@ -12,7 +13,7 @@ const COLUMNS = ['timestamp', 'sensor_id', 'temperature', 'humidity', 'pressure'
 const OPERATORS = ['=', '≠', '>', '≥', '<', '≤', '含む', '含まない', '空白', '非空白']
 
 const newCondition = (): Condition => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   logic: 'AND',
   column: COLUMNS[0],
   operator: '=',
@@ -30,7 +31,7 @@ export default function QueryBuilderPage() {
 
   const duplicate = (id: string) => {
     const idx = conditions.findIndex(c => c.id === id)
-    const clone = { ...conditions[idx], id: crypto.randomUUID() }
+    const clone = { ...conditions[idx], id: generateId() }
     setConditions(prev => [...prev.slice(0, idx + 1), clone, ...prev.slice(idx + 1)])
   }
 

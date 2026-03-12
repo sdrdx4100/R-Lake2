@@ -1,4 +1,5 @@
 import { useState, useRef, DragEvent, ChangeEvent } from 'react'
+import { generateId } from '../utils/uuid'
 
 interface FileEntry {
   id: string
@@ -15,7 +16,7 @@ export default function DataUploadPage() {
 
   const addFiles = (newFiles: File[]) => {
     const entries: FileEntry[] = newFiles.map(f => ({
-      id: crypto.randomUUID(),
+      id: generateId(),
       name: f.name,
       size: f.size,
       status: '待機',
