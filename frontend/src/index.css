@@ -4,6 +4,13 @@
 
 * {
   box-sizing: border-box;
+  box-shadow: none !important;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
@@ -17,31 +24,40 @@ body {
 
 input, select, button, textarea {
   border-radius: 0 !important;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  color: #111827;
+  font-size: 13px;
+  box-shadow: none !important;
 }
 
 input[type="text"],
 input[type="file"],
 select {
   height: 32px;
-  border: 1px solid #D1D5DB;
-  background: #FFFFFF;
-  color: #111827;
   padding: 0 8px;
-  font-size: 13px;
 }
 
 button {
   height: 32px;
-  border: 1px solid #D1D5DB;
-  background: #FFFFFF;
-  color: #111827;
   padding: 0 12px;
   cursor: pointer;
-  font-size: 13px;
 }
 
 button:hover {
   background: #F3F4F6;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+textarea {
+  padding: 8px;
+}
+
+a {
+  color: inherit;
 }
 
 select {
